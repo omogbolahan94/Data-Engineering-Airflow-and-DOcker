@@ -1,0 +1,13 @@
+version: 2
+
+sources:
+  - name: destination_db
+    description: "Read data from the destination postgres database."
+    database: destination_db
+    tables:
+      - name: films
+        description: "List of films"
+      - name: actors
+        description: "List of actors"
+      - name: film_actors
+        description: "Mapping the films and actors tables."
