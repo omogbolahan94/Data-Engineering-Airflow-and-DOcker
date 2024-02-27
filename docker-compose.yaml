@@ -57,7 +57,32 @@ services:
       DBT_PROFILE: default
       DBT_TARGET: dev
 
+  postgres: 
+      image: postgres:15
+      networks:
+        - elt_network
+      environment:
+        POSTGRES_DB: airflow_db
+        POSTGRES_USER: airflow
+        POSTGRES_PASSWORD: airflow
 
+  init_airflow:
+      image: apache/airflow:latest
+      networks:
+        - elt_network
+      depends_on:
+        - postgres
+      environment:
+        AIRFLOW__DATABSE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@postges/airflow
+      command: >
+        bash -c "airflow db init &&
+                  airflow users create --username airflow --password password 
+                  --firstname Gabriel --lastname Olatunji --role Admin 
+                  --email olatunji@sample.com"
+
+  webserve:
+    image:
+    
 networks:
   elt_network:
     driver: bridge
