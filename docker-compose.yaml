@@ -26,45 +26,45 @@ services:
       POSTGRES_PASSWORD: secret
 
   # utilise the script we are running to send data from src to dst
-  elt_script:
-    build:
-      context: ./elt # script directory
-      dockerfile: Dockerfile
-    command: ["python", "elt_script.py"] 
-    networks:
-      - elt_network  
-    depends_on: # docker will not run ELT python scripts until the two depenencies (source and destination DB) are finished initialising
-      - source_postgres
-      - destination_postgres
+  # elt_script:
+  #   build:
+  #     context: ./elt # script directory
+  #     dockerfile: Dockerfile
+  #   command: ["python", "elt_script.py"] 
+  #   networks:
+  #     - elt_network  
+  #   depends_on: # docker will not run ELT python scripts until the two depenencies (source and destination DB) are finished initialising
+  #     - source_postgres
+  #     - destination_postgres
 
-  dbt:
-    image: ghcr.io/dbt-labs/dbt-postgres:1.4.7
-    command: [
-      "run",
-      "--profiles-dir",
-      "/root",
-      "--project-dir",
-      "/dbt"
-    ]
-    networks:
-      - elt_network
-    volumes:
-      - /custom_postgres:/dbt
-      - ~/.dbt:/root
-    depends_on:
-      - elt_script
-    environment:
-      DBT_PROFILE: default
-      DBT_TARGET: dev
+  # dbt:
+  #   image: ghcr.io/dbt-labs/dbt-postgres:1.4.7
+  #   command: [
+  #     "run",
+  #     "--profiles-dir",
+  #     "/root",
+  #     "--project-dir",
+  #     "/dbt"
+  #   ]
+  #   networks:
+  #     - elt_network
+  #   volumes:
+  #     - /custom_postgres:/dbt
+  #     - ~/.dbt:/root
+  #   depends_on:
+  #     - elt_script
+  #   environment:
+  #     DBT_PROFILE: default
+  #     DBT_TARGET: dev
 
-  postgres: 
-      image: postgres:15
-      networks:
-        - elt_network
-      environment:
-        POSTGRES_DB: airflow_db
-        POSTGRES_USER: airflow
-        POSTGRES_PASSWORD: airflow
+  # postgres: 
+  #     image: postgres:15
+  #     networks:
+  #       - elt_network
+  #     environment:
+  #       POSTGRES_DB: airflow_db
+  #       POSTGRES_USER: airflow
+  #       POSTGRES_PASSWORD: airflow
 
   init_airflow:
       image: apache/airflow:latest
@@ -80,9 +80,67 @@ services:
                   --firstname Gabriel --lastname Olatunji --role Admin 
                   --email olatunji@sample.com"
 
-  webserve:
-    image:
-    
+  webserver:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - elt_network
+    user: root
+    depends_on:
+      - postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./elt:/opt/airflow/elt
+      - ./custom_postgres:/opt/dbt
+      - ~/.dbt:/root/.dbt
+      - /var/run/docker.sock:/var/run/docker.sock
+    environmen:
+      LOAD_EX=n
+      EXECUTOR=local
+      AIRFLOW__DATABSE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@postges/airflow
+      AIRFLOW__CORE__FERNET_KEY=G0RLMm2movBZj5cMmMUR42sekx0j83uGnzPF5cVw9QM=
+      AIRFLOW__WEBSERVER__DEFAULT_USER_USERNAME=airflow
+      AIRFLOW__WEBSERVER__DEFAULT_USER_PASSWORD=password
+      AIRFLOW_WWW_USER_USERNAME=airflow
+      AIRFLOW_WWW_USER_USERNAME=password
+      AIRFLOW__WEBSERVER_SECREY_KEY=secret
+    ports: "8080:8080"
+    command: webserver
+
+  shceduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - elt_network
+    user: root
+    depends_on:
+      - postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./elt:/opt/airflow/elt
+      - ./custom_postgres:/opt/dbt
+      - ~/.dbt:/root/.dbt
+      - /var/run/docker.sock:/var/run/docker.sock
+    environmen:
+      LOAD_EX=n
+      EXECUTOR=local
+      AIRFLOW__DATABSE__SQL_ALCHEMY_CONN=postgres+psycopg2://airflow:airflow@postges/airflow
+      AIRFLOW__CORE__FERNET_KEY=G0RLMm2movBZj5cMmMUR42sekx0j83uGnzPF5cVw9QM=
+      AIRFLOW__WEBSERVER__DEFAULT_USER_USERNAME=airflow
+      AIRFLOW__WEBSERVER__DEFAULT_USER_PASSWORD=password
+      AIRFLOW_WWW_USER_USERNAME=airflow
+      AIRFLOW_WWW_USER_USERNAME=password
+      AIRFLOW__WEBSERVER_SECREY_KEY=secret
+    ports: 
+      - "8080:8080"
+    command: webserver
+
 networks:
   elt_network:
     driver: bridge
