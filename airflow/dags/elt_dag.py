@@ -69,3 +69,4 @@ task2 = ap.docker.DockerOperator(
 task1 >> task2 
 
 git_v = "new line in main branch"
+git_v2 = "new line in main branch"
