@@ -57,14 +57,14 @@ services:
   #     DBT_PROFILE: default
   #     DBT_TARGET: dev
 
-  # postgres: 
-  #     image: postgres:15
-  #     networks:
-  #       - elt_network
-  #     environment:
-  #       POSTGRES_DB: airflow_db
-  #       POSTGRES_USER: airflow
-  #       POSTGRES_PASSWORD: airflow
+  postgres: 
+      image: postgres:15
+      networks:
+        - elt_network
+      environment:
+        POSTGRES_DB: airflow_db
+        POSTGRES_USER: airflow
+        POSTGRES_PASSWORD: airflow
 
   init_airflow:
       image: apache/airflow:latest
@@ -139,7 +139,7 @@ services:
       AIRFLOW__WEBSERVER_SECREY_KEY=secret
     ports: 
       - "8080:8080"
-    command: webserver
+    command: shceduler
 
 networks:
   elt_network:
