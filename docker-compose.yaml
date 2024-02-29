@@ -139,7 +139,7 @@ services:
       AIRFLOW__WEBSERVER_SECREY_KEY=secret
     ports: 
       - "8080:8080"
-    command: webserver
+    command: shceduler
 
 networks:
   elt_network:
