@@ -69,6 +69,3 @@ task2 = ap.docker.DockerOperator(
 task1 >> task2 
 
 
-git_done = "New changes"
-git_done2 = "changes"
-
