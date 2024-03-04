@@ -2,20 +2,104 @@
 version: 2
 
 models:
-  - name: my_first_dbt_model
-    description: "A starter dbt model"
+  - name: actors
+    description: "Actors information"
     columns:
-      - name: id
+      - name: actor_id
         description: "The primary key for this table"
         tests:
           - unique
           - not_null
 
-  - name: my_second_dbt_model
-    description: "A starter dbt model"
+      - name: name
+        description: ""
+        tests:
+
+  - name: film_actors
+    description: "Film and their actors"
     columns:
-      - name: id
+      - name: film_id
+        description: "Identifier for films"
+        tests:
+          - not_null
+
+      - name: actor_id
+        description: "identifier for actor"
+        tests:
+          - not_null
+
+  - name: film_ratings
+    description: "Film and their actors"
+    columns:
+      - name: film_id
         description: "The primary key for this table"
         tests:
           - unique
+          - not_null
+      
+      - name: title
+        description: ""
+        tests:
+          - not_null
+
+      - name: release_date
+        description: ""
+        tests:
+          - not_null
+
+      - name: price
+        description: ""
+        tests:
+          - not_null
+
+      - name: rating
+        description: ""
+        
+      - name: user_rating
+        description: ""
+        tests:
+          - not_null
+
+      - name: actor_count
+        description: ""
+        tests:
+          - not_null
+
+      - name: avg_actor_rating
+        description: ""
+        tests:
+          - not_null
+
+  - name: films
+    description: "Film and their actors"
+    columns:
+      - name: film_id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null
+      
+      - name: title
+        description: ""
+        tests:
+          - not_null
+
+      - name: release_date
+        description: ""
+        tests:
+          - not_null
+
+      - name: price
+        description: ""
+        tests:
+          - not_null
+
+      - name: user_rating
+        description: ""
+        tests:
+          - not_null
+
+      - name: rating
+        description: ""
+        tests:
           - not_null

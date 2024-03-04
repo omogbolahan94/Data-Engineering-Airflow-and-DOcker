@@ -4,7 +4,7 @@ from docker.types import Mount
 import airflow.operators as ap 
 from airflow.operators.python_operators import PythonOperator
 from airflow.operators.bash import BashOperator
-from airflow.operators.docker import DockerOperator
+from airflow.providers.docker.operators.docker import DockerOperator
 import subprocess
 
 default_args = {
@@ -53,14 +53,16 @@ task2 = ap.docker.DockerOperator(
       "--profiles-dir",
       "/root",
       "--project-dir",
-      "/dbt"
+      "/opt/dbt"
     ],
     auto_remove=True, # remove the image once it has finished running
     docker_url='unix://var/run/docker.sock',
     network_mode='bridge',
     mounts=[
-        Mount(source='users/user/document/elt-de-proj/custom_postgres', target='/dbt', type='bind'),
-        Mount(source='users/user/.dbt', target='/root', type='bind')
+        Mount(source='users/user/document/elt-de-proj/custom_postgres', 
+            target='/opt/dbt', type='bind'),
+        Mount(source='users/user/.dbt', 
+            target='/root', type='bind')
     ], # replicate the volume of the dbt service in docker compose file
     dag=dag
 ) 
